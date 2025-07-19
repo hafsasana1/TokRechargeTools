@@ -59,7 +59,7 @@ export default function LiveCalculatorDemo() {
                 <div className="p-2 bg-blue-600 rounded-lg">
                   <DollarSign className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-lg font-semibold text-blue-800">USD Value</span>
+                <span className="text-lg font-semibold text-blue-800">🇺🇸 USD Value</span>
               </div>
               <span className="text-3xl font-bold text-blue-800 transition-all duration-1000">
                 ${usdValue.toFixed(2)}

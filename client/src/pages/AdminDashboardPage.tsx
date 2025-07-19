@@ -31,6 +31,7 @@ import {
   Area,
   AreaChart
 } from 'recharts';
+import { getCountryWithFlag } from "@/lib/countryFlags";
 
 const COLORS = ['#FF1744', '#9C27B0', '#3F51B5', '#2196F3', '#009688', '#4CAF50'];
 
@@ -275,7 +276,7 @@ export default function AdminDashboardPage() {
                       <div className="w-8 h-8 bg-gradient-to-r from-tiktok-pink to-tiktok-cyan rounded-full flex items-center justify-center text-white text-sm font-bold">
                         {index + 1}
                       </div>
-                      <span className="ml-3 font-medium">{country.country || 'Unknown'}</span>
+                      <span className="ml-3 font-medium">{getCountryWithFlag(country.country || 'Unknown')}</span>
                     </div>
                     <Badge variant="secondary">{country.count} visits</Badge>
                   </div>
@@ -337,8 +338,8 @@ export default function AdminDashboardPage() {
                       <td className="p-2 font-mono text-xs">{visitor.ipAddress}</td>
                       <td className="p-2">
                         {visitor.country && visitor.city 
-                          ? `${visitor.city}, ${visitor.country}`
-                          : visitor.country || 'Unknown'
+                          ? `${visitor.city}, ${getCountryWithFlag(visitor.country)}`
+                          : getCountryWithFlag(visitor.country || 'Unknown')
                         }
                       </td>
                       <td className="p-2 font-medium">{visitor.page}</td>

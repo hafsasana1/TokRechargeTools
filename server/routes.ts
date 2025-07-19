@@ -196,6 +196,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all AdSense ads (Admin)
+  app.get("/api/admin/adsense", requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const ads = await storage.getAdsenseAds();
+      res.json(ads);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch AdSense ads" });
+    }
+  });
+
+  // Create AdSense ad (Admin)
+  app.post("/api/admin/adsense", requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const result = z.object({
+        name: z.string().min(1),
+        adSlot: z.string().min(1),
+        adFormat: z.string(),
+        location: z.string(),
+        isActive: z.boolean(),
+        code: z.string().optional()
+      }).safeParse(req.body);
+
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid input", details: result.error.errors });
+      }
+
+      const ad = await storage.createAdsenseAd(result.data);
+      res.json(ad);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create AdSense ad" });
+    }
+  });
+
+  // Update AdSense ad (Admin)
+  app.put("/api/admin/adsense/:id", requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const result = z.object({
+        name: z.string().min(1),
+        adSlot: z.string().min(1),
+        adFormat: z.string(),
+        location: z.string(),
+        isActive: z.boolean(),
+        code: z.string().optional()
+      }).safeParse(req.body);
+
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid input", details: result.error.errors });
+      }
+
+      const ad = await storage.updateAdsenseAd(id, result.data);
+      res.json(ad);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update AdSense ad" });
+    }
+  });
+
+  // Delete AdSense ad (Admin)
+  app.delete("/api/admin/adsense/:id", requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteAdsenseAd(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete AdSense ad" });
+    }
+  });
+
   // =============================================================================
   // AUTHENTICATION ENDPOINTS
   // =============================================================================

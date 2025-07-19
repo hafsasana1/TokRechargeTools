@@ -19,7 +19,7 @@ import AdminDashboardPage from "@/pages/AdminDashboardPage";
 import AdminBlogPage from "@/pages/AdminBlogPage";
 import AdminSettingsPage from "@/pages/AdminSettingsPage";
 import AdminAnalyticsPage from "@/pages/AdminAnalyticsPage";
-import AdminAdsPage from "@/pages/AdminAdsPage";
+import AdminAdsensePage from "@/pages/AdminAdsensePage";
 import AdminToolsPage from "@/pages/AdminToolsPage";
 import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
@@ -47,7 +47,7 @@ function Router() {
       <Route path="/admin/blog" component={AdminBlogPage} />
       <Route path="/admin/settings" component={AdminSettingsPage} />
       <Route path="/admin/analytics" component={AdminAnalyticsPage} />
-      <Route path="/admin/ads" component={AdminAdsPage} />
+      <Route path="/admin/adsense" component={AdminAdsensePage} />
       <Route path="/admin/tools" component={AdminToolsPage} />
       <Route path="/admin/*" component={AdminDashboardPage} />
       <Route path="/about" component={AboutPage} />

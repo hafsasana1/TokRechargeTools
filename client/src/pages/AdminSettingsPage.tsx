@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
@@ -15,13 +15,18 @@ import {
   Globe,
   Search,
   BarChart3,
-  Image
+  Image,
+  Code,
+  DollarSign,
+  Shield
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import VerificationCodeManager from "@/components/VerificationCodeManager";
 
 export default function AdminSettingsPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [localValues, setLocalValues] = useState<Record<string, string>>({});
   
   const token = localStorage.getItem("admin_token");
   if (!token) {
@@ -73,19 +78,25 @@ export default function AdminSettingsPage() {
       ]
     },
     {
-      section: "Analytics",
-      icon: BarChart3,
+      section: "AdSense & Monetization",
+      icon: DollarSign,
       settings: [
-        { key: "googleAnalytics", label: "Google Analytics", type: "text", description: "GA tracking code" },
-        { key: "googleSearchConsole", label: "Search Console", type: "text", description: "GSC verification code" },
-        { key: "facebookPixel", label: "Facebook Pixel", type: "text", description: "FB Pixel code" },
+        { key: "adsenseCode", label: "AdSense Publisher ID", type: "text", description: "Google AdSense publisher ID (ca-pub-xxxxxxxxxxxxxxxx)" },
+        { key: "adsenseAutoAds", label: "Auto Ads Code", type: "textarea", description: "Google AdSense auto ads script code" },
+        { key: "adsHeader", label: "Header Ad Unit", type: "textarea", description: "Ad code for header placement" },
+        { key: "adsFooter", label: "Footer Ad Unit", type: "textarea", description: "Ad code for footer placement" },
+        { key: "adsSidebar", label: "Sidebar Ad Unit", type: "textarea", description: "Ad code for sidebar placement" },
       ]
     },
     {
-      section: "SEO",
-      icon: Search,
+      section: "Verification Codes",
+      icon: Shield,
       settings: [
-        { key: "verificationMeta", label: "Verification Meta", type: "textarea", description: "Additional meta tags" },
+        { key: "googleVerification", label: "Google Search Console", type: "text", description: "Google site verification meta tag content" },
+        { key: "bingVerification", label: "Bing Webmaster", type: "text", description: "Bing site verification meta tag content" },
+        { key: "facebookPixel", label: "Facebook Pixel ID", type: "text", description: "Facebook pixel tracking ID" },
+        { key: "googleAnalytics", label: "Google Analytics ID", type: "text", description: "Google Analytics measurement ID (G-XXXXXXXXXX)" },
+        { key: "yandexVerification", label: "Yandex Webmaster", type: "text", description: "Yandex site verification meta tag content" },
       ]
     }
   ];
@@ -94,93 +105,154 @@ export default function AdminSettingsPage() {
     updateMutation.mutate({ key, value });
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tiktok-pink mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading settings...</p>
-        </div>
-      </div>
-    );
-  }
-
   const settingsMap = settings?.reduce((acc: any, setting: any) => {
     acc[setting.key] = setting.value;
     return acc;
   }, {}) || {};
 
+  // Initialize local values when settings load
+  useEffect(() => {
+    if (settings) {
+      const initialValues = settings.reduce((acc: any, item: any) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+      setLocalValues(initialValues);
+    }
+  }, [settings]);
+
+  const handleInputChange = (key: string, value: string) => {
+    setLocalValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveValue = async (key: string, value: string) => {
+    await updateMutation.mutateAsync({ key, value });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto"></div>
+          <p className="mt-6 text-lg font-medium text-gray-700">Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+      {/* Modern Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-purple-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-18">
             <div className="flex items-center space-x-4">
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 onClick={() => setLocation("/admin/dashboard")}
-                className="flex items-center"
+                className="flex items-center bg-white/50 hover:bg-white/80 border-purple-200 hover:border-purple-300 transition-all duration-200"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
-              <h1 className="text-xl font-semibold text-gray-900">Site Settings</h1>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  Site Settings
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">Configure your website settings and integrations</p>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid gap-8">
+          {/* Verification Codes Section */}
+          <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-0">
+            <CardHeader className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-t-lg border-b border-blue-100">
+              <CardTitle className="flex items-center text-xl">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 mr-3">
+                  <Shield className="w-5 h-5 text-white" />
+                </div>
+                <span className="bg-gradient-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent">
+                  Site Verification & Tracking
+                </span>
+              </CardTitle>
+              <CardDescription className="ml-12 text-gray-600">
+                Manage verification codes for search engines and analytics platforms
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-8">
+              <VerificationCodeManager 
+                codes={settingsMap}
+                onSave={handleSaveValue}
+                isPending={updateMutation.isPending}
+              />
+            </CardContent>
+          </Card>
+
           {settingsConfig.map((section) => (
-            <Card key={section.section}>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <section.icon className="w-5 h-5 mr-2" />
-                  {section.section}
+            <Card key={section.section} className="bg-white/70 backdrop-blur-sm shadow-xl border-0 hover:shadow-2xl transition-shadow duration-300">
+              <CardHeader className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-t-lg border-b border-purple-100">
+                <CardTitle className="flex items-center text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 mr-3">
+                    <section.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="bg-gradient-to-r from-purple-700 to-blue-700 bg-clip-text text-transparent">
+                      {section.section}
+                    </span>
+                  </div>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-600 ml-12">
                   Configure {section.section.toLowerCase()} settings for your website
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {section.settings.map((setting) => {
-                  const [localValue, setLocalValue] = useState(settingsMap[setting.key] || "");
-                  
-                  return (
-                    <div key={setting.key} className="space-y-2">
-                      <label className="text-sm font-medium">{setting.label}</label>
-                      <p className="text-xs text-gray-500">{setting.description}</p>
-                      <div className="flex space-x-2">
+              <CardContent className="p-8">
+                <div className="grid gap-8">
+                  {section.settings.map((setting) => (
+                    <div key={setting.key} className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-semibold text-gray-700 flex items-center">
+                          <Code className="w-4 h-4 mr-2 text-purple-500" />
+                          {setting.label}
+                        </label>
+                        <Button
+                          onClick={() => handleSaveValue(setting.key, localValues[setting.key] || settingsMap[setting.key] || "")}
+                          disabled={updateMutation.isPending}
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          {updateMutation.isPending ? "Saving..." : "Save"}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg border-l-4 border-purple-200">
+                        {setting.description}
+                      </p>
+                      <div className="relative">
                         {setting.type === "textarea" ? (
                           <Textarea
-                            value={localValue}
-                            onChange={(e) => setLocalValue(e.target.value)}
+                            value={localValues[setting.key] || settingsMap[setting.key] || ""}
+                            onChange={(e) => handleInputChange(setting.key, e.target.value)}
                             placeholder={`Enter ${setting.label.toLowerCase()}...`}
-                            className="flex-1"
-                            rows={3}
+                            className="w-full bg-white/80 border-purple-200 focus:border-purple-400 focus:ring-purple-300 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                            rows={4}
                           />
                         ) : (
                           <Input
-                            value={localValue}
-                            onChange={(e) => setLocalValue(e.target.value)}
+                            value={localValues[setting.key] || settingsMap[setting.key] || ""}
+                            onChange={(e) => handleInputChange(setting.key, e.target.value)}
                             placeholder={`Enter ${setting.label.toLowerCase()}...`}
-                            className="flex-1"
+                            className="w-full bg-white/80 border-purple-200 focus:border-purple-400 focus:ring-purple-300 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
                           />
                         )}
-                        <Button
-                          onClick={() => handleSave(setting.key, localValue)}
-                          disabled={updateMutation.isPending}
-                          size="sm"
-                        >
-                          <Save className="w-4 h-4" />
-                        </Button>
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </CardContent>
             </Card>
           ))}

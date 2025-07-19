@@ -495,6 +495,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Image upload endpoint
+  app.post("/api/admin/upload", requireAuth, upload.single('image'), async (req: AuthRequest, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file provided" });
+      }
+
+      // For now, we'll use a simple data URL approach
+      // In production, you'd upload to a cloud storage service like AWS S3, Cloudinary, etc.
+      const base64Image = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      const dataUrl = `data:${mimeType};base64,${base64Image}`;
+      
+      // Generate a unique filename
+      const timestamp = Date.now();
+      const filename = `${timestamp}-${req.file.originalname}`;
+      
+      // In a real app, you'd save to cloud storage and return the public URL
+      // For demo purposes, we'll return the data URL
+      res.json({ 
+        url: dataUrl,
+        filename: filename,
+        size: req.file.size,
+        mimeType: mimeType
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      res.status(500).json({ error: "Failed to upload image" });
+    }
+  });
+
   // AdSense management
   app.get("/api/admin/adsense", requireAuth, async (req: AuthRequest, res: Response) => {
     try {

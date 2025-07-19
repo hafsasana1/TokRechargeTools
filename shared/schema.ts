@@ -44,8 +44,10 @@ export const blogPosts = pgTable("blog_posts", {
   metaDescription: text("meta_description"),
   keywords: text("keywords"),
   category: text("category").default("general"),
-  tags: text("tags").array(),
+  tags: text("tags"),
+  featuredImage: text("featured_image"),
   coverImage: text("cover_image"),
+  featured: boolean("featured").default(false),
   status: text("status").default("draft"), // draft, published, scheduled
   scheduledAt: timestamp("scheduled_at"),
   publishedAt: timestamp("published_at"),
@@ -147,6 +149,8 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+
 
 export const insertRechargePackageSchema = createInsertSchema(rechargePackages).omit({
   id: true,

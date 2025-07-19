@@ -102,15 +102,20 @@ export default function AdminBlogPage() {
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => setLocation(`/admin/blog/edit/${post.id}`)}
+                      onClick={() => setLocation(`/admin/blog/${post.id}`)}
                     >
                       <Edit className="w-3 h-3" />
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => deleteMutation.mutate(post.id)}
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this blog post?')) {
+                          deleteMutation.mutate(post.id);
+                        }
+                      }}
                       disabled={deleteMutation.isPending}
+                      className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>

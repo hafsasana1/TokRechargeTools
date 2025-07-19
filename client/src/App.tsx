@@ -21,6 +21,7 @@ import AdminSettingsPage from "@/pages/AdminSettingsPage";
 import AdminAnalyticsPage from "@/pages/AdminAnalyticsPage";
 import AdminAdsensePage from "@/pages/AdminAdsensePage";
 import AdminToolsPage from "@/pages/AdminToolsPage";
+import AdminBlogEditPage from "@/pages/AdminBlogEditPage";
 import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
@@ -45,6 +46,8 @@ function Router() {
       <Route path="/admin/login" component={AdminLoginPage} />
       <Route path="/admin/dashboard" component={AdminDashboardPage} />
       <Route path="/admin/blog" component={AdminBlogPage} />
+      <Route path="/admin/blog/new" component={AdminBlogEditPage} />
+      <Route path="/admin/blog/:id" component={AdminBlogEditPage} />
       <Route path="/admin/settings" component={AdminSettingsPage} />
       <Route path="/admin/analytics" component={AdminAnalyticsPage} />
       <Route path="/admin/adsense" component={AdminAdsensePage} />

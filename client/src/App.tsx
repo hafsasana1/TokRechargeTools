@@ -25,6 +25,9 @@ import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 import TermsOfServicePage from "@/pages/TermsOfServicePage";
+import USAPricingPage from "@/pages/USAPricingPage";
+import IndiaPricingPage from "@/pages/IndiaPricingPage";
+import PakistanPricingPage from "@/pages/PakistanPricingPage";
 
 function Router() {
   return (
@@ -51,6 +54,9 @@ function Router() {
       <Route path="/contact" component={ContactPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route path="/terms" component={TermsOfServicePage} />
+      <Route path="/coins-in-usa" component={USAPricingPage} />
+      <Route path="/coins-in-india" component={IndiaPricingPage} />
+      <Route path="/coins-in-pakistan" component={PakistanPricingPage} />
       <Route component={NotFound} />
     </Switch>
   );

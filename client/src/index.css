@@ -75,6 +75,19 @@
     @apply antialiased bg-background text-foreground;
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
   }
+  
+  /* Ensure emoji support across all elements */
+  *, *::before, *::after {
+    font-family: inherit;
+  }
+  
+  /* Force emoji rendering for flag characters */
+  .emoji, [class*="flag"] {
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Noto Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif !important;
+    font-style: normal;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+  }
 }
 
 @layer utilities {

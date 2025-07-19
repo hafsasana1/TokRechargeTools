@@ -172,10 +172,10 @@ export default function CountryPricingSection() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className={`text-4xl transition-transform duration-300 ${
+                    <div className={`text-4xl emoji transition-transform duration-300 ${
                       hoveredCountry === country.id ? 'scale-110 animate-bounce' : ''
                     }`}>
-                      {country.flag}
+                      {country.flag || '🏳️'}
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 text-lg">{country.code}</h3>

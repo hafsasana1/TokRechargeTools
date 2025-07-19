@@ -49,7 +49,7 @@ export default function RechargeComparison() {
               <SelectContent>
                 {countries.map((country) => (
                   <SelectItem key={country.id} value={country.id.toString()}>
-                    {country.flag} {country.name}
+                    {country.flag || '🏳️'} {country.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -62,7 +62,7 @@ export default function RechargeComparison() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              {selectedCountry.flag} {selectedCountry.name} - TikTok Coin Packages
+              {selectedCountry.flag || '🏳️'} {selectedCountry.name} - TikTok Coin Packages
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -115,8 +115,8 @@ export default function RechargeComparison() {
               {countries.slice(0, 6).map((country) => (
                 <div key={country.id} className="p-4 border rounded-lg">
                   <div className="text-center">
-                    <div className="text-2xl mb-2">{country.flag}</div>
-                    <div className="font-semibold">{country.name}</div>
+                    <div className="text-2xl mb-2">{country.flag || '🏳️'}</div>
+                    <div className="font-semibold">{country.flag} {country.name}</div>
                     <div className="text-sm text-gray-600 mt-1">
                       70 coins ≈ {formatCurrency(70 * parseFloat(country.coinRate), country.currency)}
                     </div>

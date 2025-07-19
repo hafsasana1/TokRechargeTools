@@ -13,6 +13,7 @@ import BlogCard from '@/components/common/BlogCard';
 import FAQSection from '@/components/common/FAQSection';
 import LiveCalculatorDemo from '@/components/hero/LiveCalculatorDemo';
 import CountryPricingSection from '@/components/sections/CountryPricingSection';
+import FlagTest from '@/components/FlagTest';
 import { FAQ_DATA } from '@/lib/constants';
 import type { Tool, Country, BlogPost } from '@shared/schema';
 
@@ -57,6 +58,11 @@ export default function HomePage() {
       <Header />
       
       <Breadcrumb items={[{ label: 'TikTok Tools' }]} />
+
+      {/* Flag Test Section - Temporary */}
+      <div className="container mx-auto px-4 py-4">
+        <FlagTest />
+      </div>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 py-20">

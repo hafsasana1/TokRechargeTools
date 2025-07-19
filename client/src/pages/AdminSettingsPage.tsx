@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -11,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Settings, 
   Save, 
-  ArrowLeft,
   Globe,
   Search,
   BarChart3,
@@ -22,17 +20,13 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import VerificationCodeManager from "@/components/VerificationCodeManager";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminSettingsPage() {
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [localValues, setLocalValues] = useState<Record<string, string>>({});
   
   const token = localStorage.getItem("admin_token");
-  if (!token) {
-    setLocation("/admin/login");
-    return null;
-  }
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/admin/settings"],
@@ -131,43 +125,20 @@ export default function AdminSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto"></div>
-          <p className="mt-6 text-lg font-medium text-gray-700">Loading settings...</p>
+      <AdminLayout title="Site Settings" subtitle="Configure your website settings and integrations">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading settings...</p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
-      {/* Modern Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-purple-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-18">
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setLocation("/admin/dashboard")}
-                className="flex items-center bg-white/50 hover:bg-white/80 border-purple-200 hover:border-purple-300 transition-all duration-200"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Site Settings
-                </h1>
-                <p className="text-sm text-gray-600 mt-1">Configure your website settings and integrations</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AdminLayout title="Site Settings" subtitle="Configure your website settings and integrations">
+      <div className="max-w-6xl mx-auto space-y-8">
         <div className="grid gap-8">
           {/* Verification Codes Section */}
           <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-0">
@@ -258,6 +229,6 @@ export default function AdminSettingsPage() {
           ))}
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

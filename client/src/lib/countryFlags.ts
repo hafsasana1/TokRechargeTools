@@ -84,6 +84,11 @@ export const countryFlags: Record<string, string> = {
 };
 
 export function getCountryFlag(countryName: string): string {
+  // Handle null, undefined, or empty values
+  if (!countryName || typeof countryName !== 'string') {
+    return '🌍';
+  }
+
   // Try exact match first
   if (countryFlags[countryName]) {
     return countryFlags[countryName];
@@ -101,7 +106,12 @@ export function getCountryFlag(countryName: string): string {
   return '🌍';
 }
 
-export function getCountryWithFlag(countryName: string): string {
+export function getCountryWithFlag(countryName: string): { flag: string; name: string } {
+  // Handle null, undefined, or empty values
+  if (!countryName || typeof countryName !== 'string') {
+    return { flag: '🌍', name: 'Unknown' };
+  }
+
   const flag = getCountryFlag(countryName);
-  return `${flag} ${countryName}`;
+  return { flag, name: countryName };
 }

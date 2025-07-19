@@ -11,20 +11,16 @@ import {
   Trash2, 
   Search,
   Eye,
-  Calendar,
-  ArrowLeft
+  Calendar
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminBlogPage() {
   const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   
   const token = localStorage.getItem("admin_token");
-  if (!token) {
-    setLocation("/admin/login");
-    return null;
-  }
 
   const { data: blogPosts, isLoading } = useQuery({
     queryKey: ["/api/admin/blog"],
@@ -54,45 +50,32 @@ export default function AdminBlogPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tiktok-pink mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading blog posts...</p>
+      <AdminLayout title="Blog Management" subtitle="Manage your blog posts and content">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading blog posts...</p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => setLocation("/admin/dashboard")}
-                className="flex items-center"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <h1 className="text-xl font-semibold text-gray-900">Blog Management</h1>
-            </div>
-            <Button 
-              onClick={() => setLocation("/admin/blog/new")}
-              className="bg-gradient-to-r from-tiktok-pink to-tiktok-cyan hover:from-tiktok-pink/90 hover:to-tiktok-cyan/90"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Post
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AdminLayout 
+      title="Blog Management" 
+      subtitle="Manage your blog posts and content"
+      action={
+        <Button 
+          onClick={() => setLocation("/admin/blog/new")}
+          className="bg-orange-500 hover:bg-orange-600 text-white"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          New Post
+        </Button>
+      }
+    >
+      <div className="space-y-6">
         {/* Search and Filters */}
         <div className="mb-6 flex items-center space-x-4">
           <div className="relative flex-1 max-w-md">
@@ -175,6 +158,6 @@ export default function AdminBlogPage() {
           </div>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 }

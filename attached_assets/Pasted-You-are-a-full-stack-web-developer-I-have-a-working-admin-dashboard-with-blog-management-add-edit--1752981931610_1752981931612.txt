@@ -1,0 +1,103 @@
+You are a full-stack web developer. I have a working admin dashboard with blog management (add/edit/delete blog posts), using Node.js/Express backend and React frontend. I want you to upgrade the blog editor and blog system with the following features to support modern SEO and content writing workflows. Integrate all features below using best practices, modular code structure, and reusable components.
+
+✅ Task Requirements:
+🧠 Frontend (React):
+Rich Text Editor Integration (CKEditor 5):
+
+Install and integrate CKEditor 5 Classic build.
+
+Support headings (H1–H4), links, images (with alt support), bullet lists, and quotes.
+
+Extract word count and compute reading time.
+
+On save, parse HTML and extract:
+
+All <h2> and <h3> for generating a dynamic Table of Contents (TOC).
+
+Alt text presence for images.
+
+SEO Field Section:
+
+Add a collapsible SEO section in the blog post editor UI with the following fields:
+
+Focus keyword
+
+Meta title (max 60 characters)
+
+Meta description (140–160 characters)
+
+Canonical URL (optional)
+
+OG Image (upload and preview)
+
+Show live Google search preview of how the post will look in SERP.
+
+Live SEO Analysis Assistant:
+
+Implement a "Yoast-style" sidebar showing:
+
+✅ Keyword appears in H1, URL slug, and meta description.
+
+✅ Description length within 140–160 chars.
+
+✅ At least one image with alt.
+
+✅ Flesch reading score above 50 (use flesch-score npm package).
+
+✅ Slug URL is under 60 characters.
+
+Dynamic TOC Generator:
+
+From CKEditor content, auto-generate a TOC with anchor links based on H2/H3 headings.
+
+🧠 Backend (Node.js + Express):
+Database Schema Enhancements (MongoDB or SQL):
+
+Add fields to posts collection/table:
+
+slug, meta_title, meta_description, canonical_url, reading_time, excerpt, focus_keyword, og_image, headings[]
+
+Save all <h2> and <h3> content as a list in headings[] field.
+
+Save word count and estimated reading time.
+
+Slug Generator:
+
+Automatically generate SEO-friendly slugs from post title.
+
+Ensure slug is unique (check DB before saving).
+
+Auto Internal Linking (Optional):
+
+On post save, check for related posts (by keyword or tag).
+
+Insert internal <a> links after first match (one per post, prevent duplicates).
+
+🧠 Frontend Blog Page Enhancements:
+SEO Meta Tags in <head>:
+
+Inject meta_title, meta_description, canonical, and JSON-LD schema for each post.
+
+Use react-helmet (if React frontend).
+
+Include JSON-LD for BlogPosting schema:
+
+Title, Description, Published Date, Word Count, Author.
+
+Optimize for Performance:
+
+Add lazy loading for images.
+
+Support srcset for responsive image loading.
+
+✍️ Deliverables:
+React Blog Editor component with CKEditor and SEO tools.
+
+Express route/controller logic to handle blog create/update with SEO fields.
+
+MongoDB/SQL schema migration to support new blog fields.
+
+Public blog viewer page with SEO meta tags and schema injection.
+
+TOC display in blog pages using stored headings.
+

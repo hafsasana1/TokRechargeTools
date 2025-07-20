@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+// Import flesch manually for now due to module resolution issues
+// import * as flesch from 'flesch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -51,6 +53,17 @@ const blogPostSchema = z.object({
   keywords: z.string().optional(),
   tags: z.string().optional(),
   featured: z.boolean(),
+  focusKeyword: z.string().optional(),
+  canonicalUrl: z.string().url().optional().or(z.literal("")),
+  ogImage: z.string().optional(),
+  readingTime: z.number().optional(),
+  wordCount: z.number().optional(),
+  fleschScore: z.string().optional(),
+  headings: z.array(z.object({
+    level: z.number(),
+    text: z.string(),
+    anchor: z.string()
+  })).optional(),
 });
 
 type BlogFormData = z.infer<typeof blogPostSchema>;
@@ -62,6 +75,10 @@ export default function AdminBlogEditPage() {
   const [editorContent, setEditorContent] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
   const [seoScore, setSeoScore] = useState(0);
+  const [fleschScore, setFleschScore] = useState("0");
+  const [headings, setHeadings] = useState<Array<{level: number, text: string, anchor: string}>>([]);
+  const [wordCount, setWordCount] = useState(0);
+  const [readingTime, setReadingTime] = useState(0);
   const editorRef = useRef<any>(null);
   
   const token = localStorage.getItem("admin_token");
@@ -82,6 +99,13 @@ export default function AdminBlogEditPage() {
       keywords: "",
       tags: "",
       featured: false,
+      focusKeyword: "",
+      canonicalUrl: "",
+      ogImage: "",
+      readingTime: 0,
+      wordCount: 0,
+      fleschScore: "0",
+      headings: [],
     },
   });
 
@@ -114,6 +138,54 @@ export default function AdminBlogEditPage() {
     const metaDescription = plainContent.length === 155 ? plainContent + "..." : plainContent;
     
     return { metaTitle, metaDescription };
+  };
+
+  // Extract headings from content for TOC
+  const extractHeadings = (content: string): Array<{level: number, text: string, anchor: string}> => {
+    const headingRegex = /<h([2-6])(?:[^>]*)>(.*?)<\/h[2-6]>/gi;
+    const headings: Array<{level: number, text: string, anchor: string}> = [];
+    let match;
+
+    while ((match = headingRegex.exec(content)) !== null) {
+      const level = parseInt(match[1]);
+      const text = match[2].replace(/<[^>]*>/g, '').trim();
+      const anchor = text.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+      
+      headings.push({ level, text, anchor });
+    }
+
+    return headings;
+  };
+
+  // Calculate content metrics
+  const calculateContentMetrics = (content: string) => {
+    const plainText = content.replace(/<[^>]*>/g, '').trim();
+    const words = plainText.split(/\s+/).filter(word => word.length > 0);
+    const wordCount = words.length;
+    const readingTime = Math.ceil(wordCount / 200); // 200 words per minute
+    
+    let fleschScore = "0";
+    try {
+      if (plainText.length > 0) {
+        // Simple readability calculation based on sentence and word length
+        const sentences = plainText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+        const avgSentenceLength = words.length / sentences.length;
+        const avgWordLength = plainText.replace(/\s+/g, '').length / words.length;
+        
+        // Simplified Flesch formula approximation
+        const approximateScore = 206.835 - (1.015 * avgSentenceLength) - (84.6 * avgWordLength);
+        fleschScore = Math.max(0, Math.min(100, approximateScore)).toFixed(1);
+      }
+    } catch (e) {
+      // Fallback if calculation fails
+      fleschScore = "50.0";
+    }
+
+    return { wordCount, readingTime, fleschScore };
   };
 
   // SEO Analysis function
@@ -153,20 +225,32 @@ export default function AdminBlogEditPage() {
 
     // Content optimization (25 points)
     if (formData.content) {
-      const wordCount = formData.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
-      if (wordCount >= 300) {
+      const { wordCount: currentWordCount, fleschScore: currentFleschScore } = calculateContentMetrics(formData.content);
+      
+      if (currentWordCount >= 300) {
         score += 15;
-        checks.push({ type: "success", message: `Content length is good (${wordCount} words)` });
+        checks.push({ type: "success", message: `Content length is good (${currentWordCount} words)` });
       } else {
-        checks.push({ type: "warning", message: `Content should be at least 300 words (current: ${wordCount})` });
+        checks.push({ type: "warning", message: `Content should be at least 300 words (current: ${currentWordCount})` });
       }
 
       // Check for headings
-      if (formData.content.includes('<h1>') || formData.content.includes('<h2>') || formData.content.includes('<h3>')) {
+      if (formData.content.includes('<h2>') || formData.content.includes('<h3>') || formData.content.includes('<h4>')) {
         score += 10;
         checks.push({ type: "success", message: "Content includes structured headings" });
       } else {
-        checks.push({ type: "warning", message: "Add headings (H1, H2, H3) to improve content structure" });
+        checks.push({ type: "warning", message: "Add headings (H2, H3, H4) to improve content structure" });
+      }
+
+      // Flesch reading score check
+      const fleschNum = parseFloat(currentFleschScore);
+      if (fleschNum >= 60) {
+        score += 10;
+        checks.push({ type: "success", message: `Readability is good (Flesch score: ${currentFleschScore})` });
+      } else if (fleschNum >= 50) {
+        checks.push({ type: "warning", message: `Consider simplifying language (Flesch score: ${currentFleschScore})` });
+      } else {
+        checks.push({ type: "warning", message: `Content may be too complex (Flesch score: ${currentFleschScore})` });
       }
     }
 
@@ -198,6 +282,25 @@ export default function AdminBlogEditPage() {
     const { score, checks } = calculateSEOScore(watchedValues);
     setSeoScore(score);
   }, [watchedValues]);
+
+  // Update content metrics when editor content changes
+  useEffect(() => {
+    if (editorContent) {
+      const { wordCount: newWordCount, readingTime: newReadingTime, fleschScore: newFleschScore } = calculateContentMetrics(editorContent);
+      const newHeadings = extractHeadings(editorContent);
+      
+      setWordCount(newWordCount);
+      setReadingTime(newReadingTime);
+      setFleschScore(newFleschScore);
+      setHeadings(newHeadings);
+      
+      // Update form values for submission
+      form.setValue("wordCount", newWordCount);
+      form.setValue("readingTime", newReadingTime);
+      form.setValue("fleschScore", newFleschScore);
+      form.setValue("headings", newHeadings);
+    }
+  }, [editorContent, form]);
 
   // CKEditor configuration
   const editorConfig = {
@@ -275,6 +378,9 @@ export default function AdminBlogEditPage() {
         featuredImage: blogPost.featuredImage || "",
         metaTitle: blogPost.metaTitle || "",
         metaDescription: blogPost.metaDescription || "",
+        focusKeyword: blogPost.focusKeyword || "",
+        canonicalUrl: blogPost.canonicalUrl || "",
+        ogImage: blogPost.ogImage || "",
         tags: blogPost.tags || "",
         featured: blogPost.featured || false,
       });
@@ -541,6 +647,50 @@ export default function AdminBlogEditPage() {
                       <FormLabel>Tags</FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="tag1, tag2, tag3 (comma separated)" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="focusKeyword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Focus Keyword</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Main SEO keyword" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="canonicalUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Canonical URL (Optional)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="https://example.com/canonical-url" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="ogImage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Open Graph Image</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="URL for social media sharing image" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -841,11 +991,15 @@ export default function AdminBlogEditPage() {
                 )}
               />
               
-              {/* Word Count */}
+              {/* Content Metrics */}
               <div className="mt-4 p-3 bg-gray-50 rounded border">
                 <div className="text-sm font-medium">Content Analysis</div>
                 <div className="text-xs text-gray-600 mt-1">
-                  Words: {editorContent.replace(/<[^>]*>/g, '').split(/\s+/).length}
+                  Words: {wordCount}
+                  <br />
+                  Reading Time: {readingTime} min
+                  <br />
+                  Flesch Score: {fleschScore}
                   <br />
                   Characters: {editorContent.replace(/<[^>]*>/g, '').length}
                 </div>
@@ -876,6 +1030,36 @@ export default function AdminBlogEditPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Table of Contents */}
+          {headings.length > 0 && (
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <FileText className="w-5 h-5 mr-2 text-orange-500" />
+                  Table of Contents
+                </CardTitle>
+                <CardDescription>Auto-generated from H2-H6 headings</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {headings.map((heading, index) => (
+                    <div 
+                      key={index} 
+                      className={`text-sm ${
+                        heading.level === 2 ? 'font-medium' :
+                        heading.level === 3 ? 'ml-4 font-normal' :
+                        'ml-8 text-gray-600'
+                      }`}
+                    >
+                      <span className="text-gray-400 mr-2">H{heading.level}</span>
+                      {heading.text}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
       </div>

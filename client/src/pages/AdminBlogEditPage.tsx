@@ -718,7 +718,8 @@ export default function AdminBlogEditPage() {
                   {saveMutation.isPending ? "Saving..." : isEdit ? "Update Post" : "Publish Post"}
                 </Button>
               </div>
-            </form>
+            </div>
+          </form>
           </Form>
         </div>
 

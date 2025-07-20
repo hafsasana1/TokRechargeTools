@@ -292,7 +292,12 @@ export class MemStorage implements IStorage {
 
   async createTool(insertTool: InsertTool): Promise<Tool> {
     const id = this.currentId++;
-    const tool: Tool = { ...insertTool, id, createdAt: new Date() };
+    const tool: Tool = { 
+      ...insertTool, 
+      id, 
+      createdAt: new Date(),
+      isActive: insertTool.isActive ?? null
+    };
     this.tools.set(id, tool);
     return tool;
   }
@@ -319,7 +324,11 @@ export class MemStorage implements IStorage {
 
   async createCountry(insertCountry: InsertCountry): Promise<Country> {
     const id = this.currentId++;
-    const country: Country = { ...insertCountry, id };
+    const country: Country = { 
+      ...insertCountry, 
+      id,
+      isActive: insertCountry.isActive ?? null
+    };
     this.countries.set(id, country);
     return country;
   }
@@ -346,7 +355,11 @@ export class MemStorage implements IStorage {
 
   async createGift(insertGift: InsertGift): Promise<Gift> {
     const id = this.currentId++;
-    const gift: Gift = { ...insertGift, id };
+    const gift: Gift = { 
+      ...insertGift, 
+      id,
+      isActive: insertGift.isActive ?? null
+    };
     this.gifts.set(id, gift);
     return gift;
   }
@@ -383,7 +396,17 @@ export class MemStorage implements IStorage {
       id, 
       publishedAt: insertBlogPost.status === 'published' ? now : null,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      category: insertBlogPost.category ?? null,
+      metaTitle: insertBlogPost.metaTitle ?? null,
+      metaDescription: insertBlogPost.metaDescription ?? null,
+      keywords: insertBlogPost.keywords ?? null,
+      tags: insertBlogPost.tags ?? null,
+      featuredImage: insertBlogPost.featuredImage ?? null,
+      coverImage: insertBlogPost.coverImage ?? null,
+      scheduledAt: insertBlogPost.scheduledAt ?? null,
+      status: insertBlogPost.status ?? null,
+      featured: insertBlogPost.featured ?? null
     };
     this.blogPosts.set(id, blogPost);
     return blogPost;
@@ -421,7 +444,12 @@ export class MemStorage implements IStorage {
 
   async createRechargePackage(insertRechargePackage: InsertRechargePackage): Promise<RechargePackage> {
     const id = this.currentId++;
-    const rechargePackage: RechargePackage = { ...insertRechargePackage, id };
+    const rechargePackage: RechargePackage = { 
+      ...insertRechargePackage, 
+      id,
+      isActive: insertRechargePackage.isActive ?? null,
+      countryId: insertRechargePackage.countryId ?? null
+    };
     this.rechargePackages.set(id, rechargePackage);
     return rechargePackage;
   }
@@ -459,7 +487,9 @@ export class MemStorage implements IStorage {
       id, 
       lastLogin: null,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      isActive: insertAdminUser.isActive ?? null,
+      role: insertAdminUser.role ?? null
     };
     this.adminUsers.set(id, adminUser);
     return adminUser;
@@ -496,7 +526,10 @@ export class MemStorage implements IStorage {
     const setting: SiteSetting = { 
       ...insertSetting, 
       id, 
-      updatedAt: new Date() 
+      updatedAt: new Date(),
+      description: insertSetting.description ?? null,
+      value: insertSetting.value ?? null,
+      type: insertSetting.type ?? null
     };
     this.siteSettings.set(insertSetting.key, setting);
     return setting;
@@ -523,7 +556,11 @@ export class MemStorage implements IStorage {
     const visitorLog: VisitorLog = { 
       ...insertLog, 
       id, 
-      visitedAt: new Date() 
+      visitedAt: new Date(),
+      country: insertLog.country ?? null,
+      city: insertLog.city ?? null,
+      userAgent: insertLog.userAgent ?? null,
+      referer: insertLog.referer ?? null
     };
     this.visitorLogs.push(visitorLog);
     return visitorLog;
@@ -575,7 +612,8 @@ export class MemStorage implements IStorage {
       ...insertAd, 
       id, 
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      isActive: insertAd.isActive ?? null
     };
     this.adsenseAds.set(id, ad);
     return ad;
@@ -608,7 +646,8 @@ export class MemStorage implements IStorage {
     const coinRate: CoinRate = { 
       ...insertRate, 
       id, 
-      updatedAt: new Date() 
+      updatedAt: new Date(),
+      isActive: insertRate.isActive ?? null
     };
     this.coinRates.set(insertRate.currency, coinRate);
     return coinRate;
@@ -637,7 +676,9 @@ export class MemStorage implements IStorage {
     const setting: CommissionSetting = { 
       ...insertSetting, 
       id, 
-      updatedAt: new Date() 
+      updatedAt: new Date(),
+      isActive: insertSetting.isActive ?? null,
+      minimumWithdraw: insertSetting.minimumWithdraw ?? null
     };
     this.commissionSettings.set(insertSetting.platform, setting);
     return setting;
